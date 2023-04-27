@@ -1,12 +1,19 @@
 import cv2
 import numpy as np
-from modules.detection import *
-import os
+import RPi.GPIO as GPIO
+from control.led import led
+from vision_system.face_detection import face_detection
+from vision_system.set_camera import set_camera
+from os.path import *
 
-cap = cv2.VideoCapture(0)
+abs_path = dirname(abspath(__file__))
+model_path = '/vision_system/models/haar.xml'
+abs_model_path = abs_path+model_path
 
-cap.set(3, 640)
-cap.set(4, 480)
+print(abs_model_path)
+
+cap = set_camera()
+classifier = face_detection(abs_model_path)
 
 if __name__ == '__main__':
 
@@ -15,23 +22,9 @@ if __name__ == '__main__':
         while True:
 
             ret, frame = cap.read()
+            frame, faces = classifier.detect_faces(frame)
 
-            avg_light = average_light(frame)
-            
-            frame = cv2.resize(frame, (320, 240 ))
-
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-            face_cascade = cv2.CascadeClassifier('haar.xml')
-
-            try:
-                faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
-
-                for (x, y, w, h) in faces:
-
-                    cv2.rectangle(frame, (x,y), (x+w, y+h), (0,255,0), 2)
-            finally:
-                cv2.imshow('frame', frame)
+            cv2.imshow('frame', frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'): break
 

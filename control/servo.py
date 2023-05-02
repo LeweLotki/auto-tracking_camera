@@ -58,36 +58,48 @@ class servo:
         self.pwm.set_PWM_dutycycle(self.pin, 0)
         self.pwm.set_PWM_frequency(self.pin, 0)
 
-    def set_angle(self, angle : float):
+    def set_angle(self, angle : float, steps:int=1, delay:float=0):
 
-        pulse_width = self.__get_pulse_width(angle)
-        motion_time = self.__get_motion_time(angle)
-        self.pwm.set_servo_pulsewidth(self.pin, pulse_width)
-        print('motion time: ',motion_time)
-        print('pulse_width: ',pulse_width)
-        sleep(motion_time)
+        if steps == 1:
 
-        self.current_angle = angle
-        print(angle)
+            pulse_width = self.__get_pulse_width(angle)
+            motion_time = self.__get_motion_time(angle)
+            self.pwm.set_servo_pulsewidth(self.pin, pulse_width)
+            print('motion time: ',motion_time)
+            print('pulse_width: ',pulse_width)
+            sleep(motion_time)
 
-    def change_angle(self, angle_increment : float):
+            self.current_angle = angle
+            print(angle)
+        
+        elif steps > 1:
 
-        angle = self.current_angle + angle_increment
-        if angle > 180: angle = 180
-        elif angle < 0: angle = 0
+            step = (angle - self.current_angle) / steps
+            for i in range(steps):
+                self.change_angle(angle=step, steps=1, delay=0) 
+                sleep(delay)
 
-        self.set_angle(angle)
+    def change_angle(self, angle : float, steps:int=1, delay:float=0):
+
+        new_angle = self.current_angle + angle
+        if new_angle > 180: new_angle = 180
+        elif new_angle < 0: new_angle = 0
+
+        self.set_angle(angle=new_angle,steps=steps,delay=delay)
 
 if __name__ == '__main__':
 
     servo_13 = servo(pin=13)
 
     try:
-
-        for i in range(5):
-
-            servo_13.change_angle(180)
-            servo_13.change_angle(-90)
-            servo_13.change_angle(-90)
-
+        for i in range(2):
+            servo_13.set_angle(angle=180,steps=200,delay=0.005)
+            servo_13.change_angle(angle=-90,steps=100,delay=0.005)
+        servo_13.set_angle(angle=0,steps=400,delay=0.001)
+        '''
+        for i in range(90):
+            servo_13.change_angle(1)
+            sleep(0.01)
+        '''
+    except Exception as e: print(e)
     finally: servo_13.cleanup()

@@ -7,7 +7,6 @@ class face_detection:
         
         self.face_cascade = cv2.CascadeClassifier(abs_model_path)
 
-
     def detect_faces(self, frame : np.ndarray):
 
             frame = cv2.resize(frame, (320, 240))
@@ -15,10 +14,16 @@ class face_detection:
 
             try:
                 faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
-                for (x, y, w, h) in faces:
-                    cv2.rectangle(frame, (x,y), (x+w, y+h), (0,255,0), 2)
-
-                return frame, faces
-
+                if faces != ():
+                    (x, y) = self.__get_face_position(faces)
+                    return {'x' : x, 'y' : y}
+                return {}
             except Exception as e: print(e)
 
+    def __get_face_position(self, faces):
+
+        (x,y,w,h) = faces[0]
+        x += (w / 2) - 160
+        y += (h / 2) - 120
+
+        return x, y

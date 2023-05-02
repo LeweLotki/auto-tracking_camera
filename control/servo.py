@@ -49,7 +49,6 @@ class servo:
     def __get_motion_time(self, angle : float):
 
         angle_diff = angle - self.current_angle if angle > self.current_angle else self.current_angle - angle
-        print("angle_diff: ",angle_diff)
         motion_time = (angle_diff / 360) * self.cycle_time
         return motion_time
 
@@ -65,12 +64,9 @@ class servo:
             pulse_width = self.__get_pulse_width(angle)
             motion_time = self.__get_motion_time(angle)
             self.pwm.set_servo_pulsewidth(self.pin, pulse_width)
-            print('motion time: ',motion_time)
-            print('pulse_width: ',pulse_width)
             sleep(motion_time)
 
             self.current_angle = angle
-            print(angle)
         
         elif steps > 1:
 
@@ -92,14 +88,11 @@ if __name__ == '__main__':
     servo_13 = servo(pin=13)
 
     try:
+
         for i in range(2):
             servo_13.set_angle(angle=180,steps=200,delay=0.005)
             servo_13.change_angle(angle=-90,steps=100,delay=0.005)
         servo_13.set_angle(angle=0,steps=400,delay=0.001)
-        '''
-        for i in range(90):
-            servo_13.change_angle(1)
-            sleep(0.01)
-        '''
+
     except Exception as e: print(e)
     finally: servo_13.cleanup()

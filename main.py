@@ -9,6 +9,7 @@ from vision_system.face_detection import face_detection
 from vision_system.set_camera import set_camera
 from time import sleep
 from os.path import dirname, abspath
+from copy import deepcopy
 
 abs_path = dirname(abspath(__file__))
 model_path = '/vision_system/models/haar.xml'
@@ -28,6 +29,10 @@ led_32 = led(pin=32)
 servo_13 = servo(pin=13)
 
 pid = PID()
+previous_face_position = {
+        'x' : 0,
+        'y' : 0
+}
 
 if __name__ == '__main__':
 
@@ -36,12 +41,18 @@ if __name__ == '__main__':
         while True:
 
             ret, frame = cap.read()
+            if not ret: break
+
             face_position = classifier.detect_faces(frame)
 
             if face_position != {}: 
                 led_32.set_brightness(state=1)
-                servo_angle = pid.evaluate(face_position)
+                servo_angle = pid.evaluate(input_value={
+                    'current' : face_position, 
+                    'previous' : previous_face_position
+                })
                 servo_13.change_angle(angle=servo_angle,steps=200,delay=0.001)
+                previous_face_position = deepcopy(face_position)
             else: led_32.set_brightness(state=0)
             
             if cv2.waitKey(1) & 0xFF == ord('q'): break

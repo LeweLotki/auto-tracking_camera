@@ -17,7 +17,7 @@ class servo:
         self.min_angle = 0
         self.max_angle = 180
         # 6 * time to rotate 60d * delay
-        self.delay_coef = 1.4
+        self.delay_coef = 1.5
         self.cycle_time = 6 * 0.23 * self.delay_coef  
 
         self.__setup()

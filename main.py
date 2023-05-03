@@ -41,7 +41,7 @@ if __name__ == '__main__':
             if face_position != {}: 
                 led_32.set_brightness(state=1)
                 servo_angle = pid.evaluate(face_position)
-                servo_13.change_angle(angle=servo_angle,steps=50,delay=0.001)
+                servo_13.change_angle(angle=servo_angle,steps=200,delay=0.001)
             else: led_32.set_brightness(state=0)
             
             if cv2.waitKey(1) & 0xFF == ord('q'): break
